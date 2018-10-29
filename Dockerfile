@@ -23,30 +23,100 @@ RUN echo "debconf shared/accepted-oracle-license-v1-1 select true" | debconf-set
 
 # Update packages
 RUN apt-get -y update && \
-    apt-get -y install software-properties-common bzip2 ssh net-tools openssh-server socat curl && \
+    apt-get -y install software-properties-common bzip2 ssh net-tools openssh-server socat curl unzip && \
     add-apt-repository ppa:webupd8team/java && \
     apt-get update && \
     apt-get -y install oracle-java8-installer && \
     rm -rf /var/lib/apt/lists/*
 
 # Install android sdk
-RUN wget -qO- http://dl.google.com/android/android-sdk_r23-linux.tgz | \
-    tar xvz -C /usr/local/ && \
-    mv /usr/local/android-sdk-linux /usr/local/android-sdk && \
+RUN wget -q https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip && \
+    unzip sdk-tools-linux-4333796.zip -d /usr/local/ && \
+    mv /usr/local/tools /usr/local/android-sdk && \
     chown -R root:root /usr/local/android-sdk/
 
 # Add android tools and platform tools to PATH
 ENV ANDROID_HOME /usr/local/android-sdk
-ENV PATH $PATH:$ANDROID_HOME/tools
-ENV PATH $PATH:$ANDROID_HOME/platform-tools
+ENV PATH $PATH:$ANDROID_HOME
+ENV PATH $PATH:$ANDROID_HOME/bin
+
+RUN mkdir -p $ANDROID_HOME/licenses && \
+    echo 8933bad161af4178b1185d1a37fbf41ea5269c55 > $ANDROID_HOME/licenses/android-sdk-license && \
+    echo 84831b9409646a918e30573bab4c9c91346d8abd > $ANDROID_HOME/licenses/android-sdk-preview-license
 
 # Export JAVA_HOME variable
-ENV JAVA_HOME /usr/lib/jvm/java-7-oracle
+#ENV JAVA_HOME /usr/lib/jvm/java-7-oracle
 
-# Install latest android tools and system images
-RUN ( sleep 4 && while [ 1 ]; do sleep 1; echo y; done ) | android update sdk --no-ui --force -a --filter \
-    platform-tool,android-19,android-21,android-22,build-tools-22.0.1,sys-img-x86-android-19,sys-img-x86-android-21,sys-img-x86-android-22,sys-img-armeabi-v7a-android-19,sys-img-armeabi-v7a-android-21,sys-img-armeabi-v7a-android-22 && \
-    echo "y" | android update adb
+RUN echo "Install Google API 21" && \
+    sdkmanager "add-ons;addon-google_apis-google-21" && \
+    echo "y" && \
+    echo "Install Google API 22" && \
+    sdkmanager "add-ons;addon-google_apis-google-22" && \
+    echo "y" && \
+    echo "Install Google API 23" && \
+    sdkmanager "add-ons;addon-google_apis-google-23" && \
+    echo "Install Google API 24" && \
+    echo "y" && \
+    sdkmanager "add-ons;addon-google_apis-google-24" && \
+    echo "Install android-21" && \
+    echo "y" && \
+    sdkmanager "platforms;android-21" && \
+    echo "Install android-22" && \
+    echo "y" && \
+    sdkmanager "platforms;android-22" && \
+    echo "Install android-23" && \
+    echo "y" && \
+    sdkmanager "platforms;android-23" && \
+    echo "Install android-24" && \
+    echo "y" && \
+    sdkmanager "platforms;android-24" && \
+    echo "Install android-25" && \
+    echo "y" && \
+    sdkmanager "platforms;android-25" && \
+    echo "Install platform-tools" && \
+    sdkmanager "platform-tools" && \
+    echo "Install build-tools-21.1.2" && \
+    sdkmanager "build-tools;21.1.2" && \
+    echo "Install build-tools-22.0.1" && \
+    sdkmanager "build-tools;22.0.1"  && \
+    echo "Install build-tools-23.0.1" && \
+    sdkmanager "build-tools;23.0.1" && \
+    echo "Install build-tools-23.0.2" && \
+    sdkmanager "build-tools;23.0.2" && \
+    echo "Install build-tools-23.0.3" && \
+    sdkmanager "build-tools;23.0.3" && \
+    echo "Install build-tools-24.0.0" && \
+    sdkmanager "build-tools;24.0.0" && \
+    echo "Install build-tools-24.0.1" && \
+    sdkmanager "build-tools;24.0.1" && \
+    echo "Install build-tools-24.0.2" && \
+    sdkmanager "build-tools;24.0.2" && \
+    echo "Install build-tools-24.0.3" && \
+    sdkmanager "build-tools;24.0.3" && \
+    echo "Install build-tools-25.0.0" && \
+    sdkmanager "build-tools;25.0.0" && \
+    echo "Install build-tools-25.0.1" && \
+    sdkmanager "build-tools;25.0.1" && \
+    echo "Install build-tools-25.0.2" && \
+    sdkmanager "build-tools;25.0.2" && \
+    echo "Install build-tools-25.0.3" && \
+    sdkmanager "build-tools;25.0.3" && \
+    echo "Install extra-android-m2repository" && \
+    sdkmanager "extras;android;m2repository" && \
+    echo "Install extra-google-google_play_services" && \
+    sdkmanager "extras;google;google_play_services" && \
+    echo "Install extra-google-m2repository" && \
+    sdkmanager "extras;google;m2repository" && \
+    echo "Install Google Play APK Expansion library" && \
+    sdkmanager "extras;google;market_apk_expansion" && \
+    echo "Install Google Play Licensing Library" && \
+    sdkmanager "extras;google;market_licensing" && \
+    echo "Install Google Play Billing Library" && \
+    sdkmanager "extras;google;play_billing" && \
+    echo "Install SDK Patch Applier v4" && \
+    sdkmanager "patcher;v4" && \
+    echo "Install tools 26.0.2" && \
+    sdkmanager "tools"
 
 # Create fake keymap file
 RUN mkdir /usr/local/android-sdk/tools/keymaps && \
