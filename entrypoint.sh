@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ $EMULATOR == "" ]]; then
-    EMULATOR="android-19"
+    EMULATOR="android-21"
     echo "Using default emulator $EMULATOR"
 fi
 
@@ -28,7 +28,7 @@ socat tcp-listen:443,bind=$ip,fork tcp:127.0.0.1:443 &
 
 # Set up and run emulator
 if [[ $ARCH == *"x86"* ]]
-then 
+then
     EMU="x86"
 else
     EMU="arm"
